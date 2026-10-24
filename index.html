@@ -123,6 +123,7 @@ section+section{border-top:1px solid var(--line)}
 .vid{display:flex;flex-direction:column;gap:10px;min-width:0}
 .vid .frame{aspect-ratio:16/10;max-width:100%;background:var(--code-bg);border-radius:var(--r);overflow:hidden;border:1px solid var(--line);position:relative}
 .vid video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.vid iframe{width:100%;height:100%;border:0;display:block}   
 .vid .fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px;color:var(--code-fg);text-decoration:none;background:radial-gradient(circle at 50% 40%,#22394a,#0e1820)}
 .play{width:62px;height:62px;border-radius:50%;background:#ffffff;display:grid;place-items:center;transition:transform .15s}
 .play::after{content:"";border-left:18px solid #14212a;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px}
@@ -343,33 +344,21 @@ dialog button{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right
         <div class="videos">
           <div class="vid">
             <div class="frame">
-              <video controls playsinline preload="metadata" aria-label="Demo: adding a student">
-                <source src="videos/add-student.mp4" type="video/mp4">
-                <source src="https://github.com/user-attachments/assets/c3142040-6a6e-4f3d-afb7-d59897348a0a" type="video/mp4">
-              </video>
-              <a class="fallback" hidden href="https://github.com/MalishaIslam/student-success-tracker#demo-videos" target="_blank" rel="noopener"><span class="play"></span><span>Play on GitHub</span><small>Opens in a new tab</small></a>
+                             <iframe src="https://youtu.be/tolHH6_UjgA?si=UI6VvnS0vekIdvHx" title="Demo: adding a student" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
             </div>
             <h4>Add a student</h4>
             <p>Fill in a validated form. Mistakes are explained next to the field before anything is saved.</p>
           </div>
           <div class="vid">
             <div class="frame">
-              <video controls playsinline preload="metadata" aria-label="Demo: editing student information">
-                <source src="videos/edit-student.mp4" type="video/mp4">
-                <source src="https://github.com/user-attachments/assets/d1e11e2e-77a9-4fa5-b04e-f4316a6a52e4" type="video/mp4">
-              </video>
-              <a class="fallback" hidden href="https://github.com/MalishaIslam/student-success-tracker#demo-videos" target="_blank" rel="noopener"><span class="play"></span><span>Play on GitHub</span><small>Opens in a new tab</small></a>
+                             <iframe src="https://youtu.be/GCEUWM0Cf_c?si=jz91OwZ6t6rALYl9" title="Demo: editing student information" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
             </div>
             <h4>Edit student info</h4>
             <p>If a colleague changed the same record a moment earlier, the app warns you instead of silently overwriting their work.</p>
           </div>
           <div class="vid">
             <div class="frame">
-              <video controls playsinline preload="metadata" aria-label="Demo: deleting a student and checking the audit log">
-                <source src="videos/delete-student.mp4" type="video/mp4">
-                <source src="https://github.com/user-attachments/assets/f73208e4-269c-49c0-bce2-d17e6aa3a23b" type="video/mp4">
-              </video>
-              <a class="fallback" hidden href="https://github.com/MalishaIslam/student-success-tracker#demo-videos" target="_blank" rel="noopener"><span class="play"></span><span>Play on GitHub</span><small>Opens in a new tab</small></a>
+                            <iframe src="https://youtu.be/JfCRj9XtEvs?si=dNNh0h6hSOe2Q0VF" title="Demo: deleting a student and checking the audit log" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
             </div>
             <h4>Delete, then check the audit log</h4>
             <p>The record and its scores are removed together, and the audit log shows who deleted it and when.</p>
