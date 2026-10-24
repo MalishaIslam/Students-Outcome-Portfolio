@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Outcomes Portfolio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Malisha Islam Tapotee — a SQL Server web app and a Power BI dashboard built on 32,593 Open University course enrollments.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Schibsted+Grotesk:wght@500;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* Layout: a single reading column (max ~1120px) that opens up into wide bands for media.
+   The four OULAD outcome colours (distinction / pass / fail / withdrawn) are the page's
+   signature and appear everywhere results are discussed. */
+:root{
+  --bg:#f5f7f8; --surface:#ffffff; --sunk:#e9eef1; --line:#d5dde2;
+  --fg:#16232c; --muted:#53636e; --accent:#1d5f8a; --accent-ink:#ffffff;
+  --dist:#3f7fc1; --pass:#2f9a68; --fail:#d9832b; --wd:#d65a5a;
+  --code-bg:#14212a; --code-fg:#dbe7ee;
+  --f-display:"Schibsted Grotesk","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f171d; --surface:#16212a; --sunk:#1c2933; --line:#2a3a46;
+  --fg:#e6edf1; --muted:#9db0bc; --accent:#7cb7e0; --accent-ink:#0b1720;
+  --dist:#79aee6; --pass:#5cc493; --fail:#eba25a; --wd:#ee8585;
+  --code-bg:#0a1116; --code-fg:#d5e2ea; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f171d; --surface:#16212a; --sunk:#1c2933; --line:#2a3a46;
+  --fg:#e6edf1; --muted:#9db0bc; --accent:#7cb7e0; --accent-ink:#0b1720;
+  --dist:#79aee6; --pass:#5cc493; --fail:#eba25a; --wd:#ee8585;
+  --code-bg:#0a1116; --code-fg:#d5e2ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.6;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:4px}
+img{max-width:100%;height:auto;display:block}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--sunk);padding:.1em .35em;border-radius:4px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.7rem,3.4vw,2.35rem);font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.2rem;font-weight:700}
+p{margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.prose{max-width:66ch}
+.eyebrow{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.skip{position:absolute;left:-999px;top:8px;background:var(--accent);color:var(--accent-ink);padding:8px 14px;border-radius:6px;z-index:50}
+.skip:focus{left:16px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:60px;flex-wrap:wrap;padding-block:8px}
+.brand{font-family:var(--f-display);font-weight:800;color:var(--fg);text-decoration:none;font-size:1.05rem}
+.top nav{display:flex;gap:4px;flex-wrap:wrap}
+.top nav a{color:var(--muted);text-decoration:none;font-size:.93rem;padding:6px 10px;border-radius:6px}
+.top nav a:hover{color:var(--fg);background:var(--sunk)}
+
+/* hero */
+.hero{padding-block:clamp(40px,7vw,84px) 40px}
+.hero h1{font-size:clamp(2.1rem,5.4vw,3.7rem);font-weight:800;letter-spacing:-.02em;max-width:18ch;margin-top:14px}
+.hero .lede{font-size:1.18rem;color:var(--muted);margin-top:18px;max-width:60ch}
+.byline{display:flex;gap:10px 18px;flex-wrap:wrap;margin-top:22px;font-size:.95rem;color:var(--muted)}
+.byline strong{color:var(--fg)}
+
+/* outcome bar */
+.outcome{margin-top:40px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px clamp(16px,3vw,28px)}
+.outcome-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px 16px;flex-wrap:wrap}
+.outcome-head p{color:var(--muted);font-size:.95rem}
+.bar{display:flex;height:46px;border-radius:7px;overflow:hidden;margin-top:16px;font-family:var(--f-mono);font-weight:600;font-size:.85rem;color:#fff}
+.bar span{display:flex;align-items:center;padding-left:10px;white-space:nowrap;overflow:hidden}
+.s-dist{background:var(--dist)}.s-pass{background:var(--pass)}.s-fail{background:var(--fail)}.s-wd{background:var(--wd)}
+:root[data-theme="dark"] .bar span{color:#0b1720}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .bar span{color:#0b1720}}
+.legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+.legend div{min-width:0}
+.legend b{display:block;font-family:var(--f-display);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.legend small{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.88rem;line-height:1.35}
+.dot{width:10px;height:10px;border-radius:3px;flex:none}
+@media (max-width:640px){.legend{grid-template-columns:repeat(2,minmax(0,1fr))}.bar span{font-size:0}}
+
+/* two project entry cards */
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.entry{display:flex;flex-direction:column;gap:10px;padding:22px;border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--fg);background:var(--surface);transition:border-color .15s,transform .15s}
+.entry:hover{border-color:var(--accent);transform:translateY(-2px)}
+.entry p{color:var(--muted);font-size:.97rem}
+.entry .go{margin-top:auto;color:var(--accent);font-weight:700;font-size:.95rem}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+
+/* sections */
+section{padding-block:clamp(48px,7vw,88px)}
+section+section{border-top:1px solid var(--line)}
+.band{background:var(--surface)}
+.sec-head{display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+.sec-head p{color:var(--muted);font-size:1.08rem;max-width:64ch}
+.sub{margin-top:56px}
+.sub>h3{font-size:1.45rem;margin-bottom:8px}
+.sub>p.note{color:var(--muted);max-width:64ch;margin-bottom:22px}
+
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.facts div{background:var(--surface);padding:18px}
+.facts b{font-family:var(--f-display);font-size:1.75rem;display:block;font-variant-numeric:tabular-nums}
+.facts span{color:var(--muted);font-size:.92rem}
+@media (max-width:720px){.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.gloss{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:28px}
+.gloss div{min-width:0}
+.gloss dt{font-family:var(--f-mono);font-weight:600;font-size:.92rem}
+.gloss dd{margin:4px 0 0;color:var(--muted);font-size:.96rem}
+@media (max-width:760px){.gloss{grid-template-columns:1fr}}
+
+/* videos */
+.videos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+@media (max-width:900px){.videos{grid-template-columns:1fr}}
+.vid{display:flex;flex-direction:column;gap:10px;min-width:0}
+.vid .frame{aspect-ratio:16/10;max-width:100%;background:var(--code-bg);border-radius:var(--r);overflow:hidden;border:1px solid var(--line);position:relative}
+.vid video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+.vid .fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px;color:var(--code-fg);text-decoration:none;background:radial-gradient(circle at 50% 40%,#22394a,#0e1820)}
+.play{width:62px;height:62px;border-radius:50%;background:#ffffff;display:grid;place-items:center;transition:transform .15s}
+.play::after{content:"";border-left:18px solid #14212a;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px}
+.vid .fallback:hover .play{transform:scale(1.08)}
+.vid .fallback small{font-size:.85rem;color:#b9cbd7}
+.vid h4{margin:0;font-family:var(--f-display);font-size:1.05rem}
+.vid p{color:var(--muted);font-size:.94rem}
+
+/* screenshot tabs */
+.shots{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.tabs{display:flex;gap:4px;padding:8px;border-bottom:1px solid var(--line);background:var(--sunk);overflow-x:auto}
+.tabs button{font:inherit;font-size:.95rem;border:0;background:transparent;color:var(--muted);padding:8px 14px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--fg);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.panel{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:0}
+.panel figure{margin:0;padding:16px;min-width:0}
+.panel aside{padding:22px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.panel aside p{color:var(--muted);font-size:.96rem}
+@media (max-width:860px){.panel{grid-template-columns:1fr}.panel aside{border-left:0;border-top:1px solid var(--line)}}
+.zoom{all:unset;cursor:zoom-in;display:block;border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.zoom:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.hint{font-size:.82rem;color:var(--muted);margin-top:8px}
+
+/* feature list */
+.features{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px}
+.features div{padding:16px 0;border-top:1px solid var(--line);min-width:0}
+.features h4{margin:0 0 4px;font-family:var(--f-display);font-size:1.05rem}
+.features p{color:var(--muted);font-size:.97rem}
+@media (max-width:760px){.features{grid-template-columns:1fr}}
+
+/* at-risk callout */
+.risk{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:8px}
+.risk div{padding:22px;border-radius:var(--r);border:1px solid var(--line);background:var(--bg)}
+.risk b{font-family:var(--f-display);font-size:2.6rem;line-height:1;display:block;font-variant-numeric:tabular-nums}
+.risk .hi b{color:var(--wd)}
+.risk p{color:var(--muted);margin-top:8px;font-size:.96rem}
+.meter{height:8px;border-radius:4px;background:var(--sunk);margin-top:14px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--wd)}
+@media (max-width:640px){.risk{grid-template-columns:1fr}}
+
+/* flow diagram */
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.node{flex:1 1 180px;min-width:0;border:1px solid var(--line);border-radius:var(--r);padding:16px;background:var(--surface)}
+.node .eyebrow{display:block;margin-bottom:6px}
+.node h4{margin:0 0 4px;font-family:var(--f-display);font-size:1.05rem}
+.node p{color:var(--muted);font-size:.92rem}
+.node.db{border-color:var(--accent)}
+.arrow{flex:0 0 40px;display:grid;place-items:center;color:var(--muted);font-family:var(--f-mono);font-size:1.3rem}
+@media (max-width:860px){.flow{flex-direction:column}.arrow{flex-basis:32px;transform:rotate(90deg)}}
+.import{margin-top:14px;font-size:.93rem;color:var(--muted);display:flex;gap:8px;align-items:flex-start}
+
+/* security */
+.locks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.locks div{min-width:0;padding-top:14px;border-top:3px solid var(--accent)}
+.locks h4{margin:0 0 4px;font-family:var(--f-display);font-size:1.02rem}
+.locks p{color:var(--muted);font-size:.94rem}
+@media (max-width:860px){.locks{grid-template-columns:1fr 1fr}}
+@media (max-width:540px){.locks{grid-template-columns:1fr}}
+.sqlrow{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.sqlrow{grid-template-columns:1fr}}
+figure{margin:0}
+figcaption{font-size:.9rem;color:var(--muted);margin-top:8px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{font-family:var(--f-mono);font-size:.82rem;border:1px solid var(--line);border-radius:999px;padding:4px 11px;background:var(--surface)}
+
+/* stats row */
+.nums{display:flex;flex-wrap:wrap;gap:12px 36px}
+.nums b{font-family:var(--f-display);font-size:1.6rem;display:block;font-variant-numeric:tabular-nums}
+.nums span{color:var(--muted);font-size:.92rem}
+
+/* buttons */
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;font-weight:700;text-decoration:none;font-size:.95rem;border:1px solid var(--accent)}
+.btn.solid{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{color:var(--accent);background:transparent}
+
+/* code */
+details{border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+details+details{margin-top:12px}
+summary{cursor:pointer;padding:14px 18px;font-weight:700}
+details>div{padding:0 18px 18px}
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font-family:var(--f-mono);font-size:.84rem;line-height:1.55;padding:16px;border-radius:8px;overflow-x:auto}
+.c{color:#7f97a6}
+
+/* findings */
+.findings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:820px){.findings{grid-template-columns:1fr}}
+.find{border:1px solid var(--line);border-radius:var(--r);padding:24px;background:var(--surface);display:flex;flex-direction:column;gap:12px;min-width:0}
+.find h3{font-size:1.18rem}
+.find p{color:var(--muted);font-size:.96rem}
+.hbar{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 3.2em;gap:8px 10px;align-items:center;font-size:.9rem}
+.hbar .t{height:14px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.hbar .t i{display:block;height:100%;border-radius:3px}
+.hbar b{font-family:var(--f-mono);font-size:.85rem;text-align:right;font-variant-numeric:tabular-nums}
+.hbar .lab{color:var(--muted);overflow-wrap:anywhere}
+.src{font-size:.82rem;color:var(--muted);margin-top:auto;border-top:1px dashed var(--line);padding-top:10px}
+
+/* steps */
+.steps{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;counter-reset:s}
+.steps li{counter-increment:s;min-width:0}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-family:var(--f-mono);font-weight:600;margin-bottom:10px}
+.steps h4{margin:0 0 4px;font-family:var(--f-display);font-size:1.02rem}
+.steps p{color:var(--muted);font-size:.94rem}
+@media (max-width:860px){.steps{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+
+.bi-shots{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:760px){.bi-shots{grid-template-columns:1fr}}
+
+footer{padding-block:48px;border-top:1px solid var(--line);color:var(--muted);font-size:.93rem}
+footer .wrap{display:flex;flex-direction:column;gap:14px}
+
+/* lightbox */
+dialog{border:0;padding:0;background:transparent;max-width:min(96vw,1600px);max-height:94vh}
+dialog::backdrop{background:rgba(5,12,18,.86)}
+dialog img{max-height:86vh;width:auto;border-radius:8px}
+dialog p{color:#e6edf1;text-align:center;margin-top:10px;font-size:.95rem}
+dialog button{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));font:inherit;font-weight:700;background:#fff;color:#14212a;border:0;border-radius:999px;padding:8px 16px;cursor:pointer}
+</style>
+</head>
+<body>
+
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">Malisha Islam Tapotee</a>
+    <nav aria-label="Sections">
+      <a href="#data">The data</a>
+      <a href="#tracker">Web app</a>
+      <a href="#dashboard">Power BI</a>
+      <a href="#findings">Findings</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap hero" id="top">
+    <span class="eyebrow">Data &amp; software portfolio</span>
+    <h1>Who passes, who struggles, and who quietly drops out.</h1>
+    <p class="lede">Two projects built on the same 32,593 university course enrollments. One is a secure web app that helps support staff find and help students at risk. The other is a Power BI dashboard that explains what the numbers say.</p>
+    <div class="byline"><span>By <strong>Malisha Islam Tapotee</strong></span><span>SQL Server · ASP.NET Core · Power BI</span><a href="https://malishaislam.github.io/">Main portfolio</a></div>
+
+    <div class="outcome" role="figure" aria-label="How all 32,593 enrollments ended: 9.3% distinction, 37.9% pass, 21.6% fail, 31.2% withdrawn">
+      <div class="outcome-head">
+        <h3>How every enrollment ended</h3>
+        <p>32,593 enrollments · 22 course runs · 2013–2014</p>
+      </div>
+      <div class="bar" aria-hidden="true">
+        <span class="s-dist" style="width:9.3%">9.3%</span>
+        <span class="s-pass" style="width:37.9%">37.9%</span>
+        <span class="s-fail" style="width:21.6%">21.6%</span>
+        <span class="s-wd" style="width:31.2%">31.2%</span>
+      </div>
+      <div class="legend">
+        <div><b>9.3%</b><small><i class="dot s-dist"></i>Distinction (top marks)</small></div>
+        <div><b>37.9%</b><small><i class="dot s-pass"></i>Pass</small></div>
+        <div><b>21.6%</b><small><i class="dot s-fail"></i>Fail</small></div>
+        <div><b>31.2%</b><small><i class="dot s-wd"></i>Withdrew before the end</small></div>
+      </div>
+    </div>
+
+    <div class="pair">
+      <a class="entry" href="#tracker">
+        <span class="eyebrow">Project 1 · Web application</span>
+        <h3>Student Success Tracker</h3>
+        <p>A sign-in-protected website where staff search, add, edit and delete student records, and get an early warning about who might fail.</p>
+        <span class="go">See the app and demo videos ↓</span>
+      </a>
+      <a class="entry" href="#dashboard">
+        <span class="eyebrow">Project 2 · Analytics</span>
+        <h3>Student Outcomes Dashboard</h3>
+        <p>An interactive two-page Power BI report showing how results change by course, semester, prior education and region.</p>
+        <span class="go">See the dashboard ↓</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- DATA -->
+  <section id="data" class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Start here</span>
+        <h2>The data, in plain English</h2>
+        <p>Both projects use the Open University Learning Analytics Dataset (OULAD). The Open University is a UK distance-learning university. It published anonymised records of real students: who they were in broad terms, which courses they took, every assignment score, and how each course ended for them. No names or personal details are included.</p>
+      </div>
+      <div class="facts">
+        <div><b>28,785</b><span>students</span></div>
+        <div><b>32,593</b><span>course enrollments</span></div>
+        <div><b>22</b><span>course runs</span></div>
+        <div><b>173,912</b><span>assessment scores</span></div>
+      </div>
+      <dl class="gloss">
+        <div><dt>Course run, e.g. BBB 2013J</dt><dd>One course (BBB) taught in one term. “J” runs start in October and “B” runs start in February.</dd></div>
+        <div><dt>Enrollment</dt><dd>One student taking one course run. A student who took two courses counts as two enrollments.</dd></div>
+        <div><dt>TMA, CMA, Exam</dt><dd>The three kinds of assessment: tutor-marked assignments, computer-marked quizzes, and final exams.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- PROJECT 1 -->
+  <section id="tracker">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Project 1 · Web application</span>
+        <h2>Student Success Tracker</h2>
+        <p>Imagine you work in student support. You need to look up a student, fix a mistake in their record, enter a new score, and spot who is falling behind before it is too late. This app does all of that, and keeps a record of every change and who made it.</p>
+      </div>
+      <div class="chips" aria-label="Built with">
+        <span>C#</span><span>ASP.NET Core 10 MVC</span><span>SQL Server 2022</span><span>T-SQL stored procedures</span><span>ADO.NET</span><span>HTML / CSS / JavaScript</span><span>Docker</span><span>xUnit</span><span>GitHub Actions</span>
+      </div>
+
+      <div class="sub">
+        <h3>Watch it work</h3>
+        <p class="note">Short screen recordings of the three everyday tasks.</p>
+        <div class="videos">
+          <div class="vid">
+            <div class="frame">
+              <video controls playsinline preload="metadata" aria-label="Demo: adding a student">
+                <source src="videos/add-student.mp4" type="video/mp4">
+                <source src="https://github.com/user-attachments/assets/c3142040-6a6e-4f3d-afb7-d59897348a0a" type="video/mp4">
+              </video>
+              <a class="fallback" hidden href="https://github.com/MalishaIslam/student-success-tracker#demo-videos" target="_blank" rel="noopener"><span class="play"></span><span>Play on GitHub</span><small>Opens in a new tab</small></a>
+            </div>
+            <h4>Add a student</h4>
+            <p>Fill in a validated form. Mistakes are explained next to the field before anything is saved.</p>
+          </div>
+          <div class="vid">
+            <div class="frame">
+              <video controls playsinline preload="metadata" aria-label="Demo: editing student information">
+                <source src="videos/edit-student.mp4" type="video/mp4">
+                <source src="https://github.com/user-attachments/assets/d1e11e2e-77a9-4fa5-b04e-f4316a6a52e4" type="video/mp4">
+              </video>
+              <a class="fallback" hidden href="https://github.com/MalishaIslam/student-success-tracker#demo-videos" target="_blank" rel="noopener"><span class="play"></span><span>Play on GitHub</span><small>Opens in a new tab</small></a>
+            </div>
+            <h4>Edit student info</h4>
+            <p>If a colleague changed the same record a moment earlier, the app warns you instead of silently overwriting their work.</p>
+          </div>
+          <div class="vid">
+            <div class="frame">
+              <video controls playsinline preload="metadata" aria-label="Demo: deleting a student and checking the audit log">
+                <source src="videos/delete-student.mp4" type="video/mp4">
+                <source src="https://github.com/user-attachments/assets/f73208e4-269c-49c0-bce2-d17e6aa3a23b" type="video/mp4">
+              </video>
+              <a class="fallback" hidden href="https://github.com/MalishaIslam/student-success-tracker#demo-videos" target="_blank" rel="noopener"><span class="play"></span><span>Play on GitHub</span><small>Opens in a new tab</small></a>
+            </div>
+            <h4>Delete, then check the audit log</h4>
+            <p>The record and its scores are removed together, and the audit log shows who deleted it and when.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Inside the app</h3>
+        <p class="note">Pick a page to see it. Click a screenshot to view it full size.</p>
+        <div class="shots">
+          <div class="tabs" role="tablist" aria-label="App screenshots">
+            <button role="tab" id="t-dash" aria-controls="p-dash" aria-selected="true">Dashboard</button>
+            <button role="tab" id="t-stu" aria-controls="p-stu" aria-selected="false" tabindex="-1">Students</button>
+            <button role="tab" id="t-risk" aria-controls="p-risk" aria-selected="false" tabindex="-1">At-risk report</button>
+          </div>
+          <div class="panel" role="tabpanel" id="p-dash" aria-labelledby="t-dash">
+            <figure><button class="zoom" data-cap="Dashboard: totals and the result mix for every course run"><img src="assets/app-dashboard.webp" width="1600" height="939" alt="Dashboard showing 28,785 students, 32,593 enrollments, a 47.2% pass rate and a table of outcomes for each course run"></button></figure>
+            <aside><span class="eyebrow">Dashboard</span><h4 style="margin:0;font-family:var(--f-display)">The big picture first</h4><p>Totals, pass rate and withdrawal rate at the top. Below, every course run with a coloured bar showing how its students finished.</p></aside>
+          </div>
+          <div class="panel" role="tabpanel" id="p-stu" aria-labelledby="t-stu" hidden>
+            <figure><button class="zoom" data-cap="Students: filtered, sorted and paged"><img src="assets/app-students.webp" width="1600" height="939" alt="Students list with filters for course, run, region, age band and result, sorted by a column" loading="lazy"></button></figure>
+            <aside><span class="eyebrow">Students</span><h4 style="margin:0;font-family:var(--f-display)">Find anyone in seconds</h4><p>Search by student ID, filter by course, term, region, age band or result, sort any column, and export exactly what you see to a spreadsheet.</p></aside>
+          </div>
+          <div class="panel" role="tabpanel" id="p-risk" aria-labelledby="t-risk" hidden>
+            <figure><button class="zoom" data-cap="At-risk report: an early-warning rule and how flagged students really finished"><img src="assets/app-at-risk.webp" width="1600" height="939" alt="At-risk report settings and a comparison of flagged and not-flagged students" loading="lazy"></button></figure>
+            <aside><span class="eyebrow">At-risk report</span><h4 style="margin:0;font-family:var(--f-display)">An early warning you can tune</h4><p>Choose a day in the course and a rule (missed deadlines or a low average). The report lists who matches, then checks how those students actually finished.</p></aside>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Does the early warning work?</h3>
+        <p class="note">Because the dataset already knows how each course ended, the rule can be tested. Checking on day 60, flagging anyone who had missed at least one deadline or was averaging under 40:</p>
+        <div class="risk">
+          <div class="hi"><span class="eyebrow">Flagged on day 60 · 4,904 students</span><b>81.3%</b><p>went on to fail or withdraw.</p><div class="meter"><i style="width:81.3%"></i></div></div>
+          <div><span class="eyebrow">Not flagged · 21,457 students</span><b>32.6%</b><p>went on to fail or withdraw.</p><div class="meter"><i style="width:32.6%"></i></div></div>
+        </div>
+        <p class="hint">A simple rule, two months in, picks out a group roughly two and a half times more likely to fail or withdraw. That is time for staff to reach out.</p>
+      </div>
+
+      <div class="sub">
+        <h3>What it can do</h3>
+        <div class="features">
+          <div><h4>Dashboard</h4><p>Totals, pass and withdrawal rates, and a results breakdown for each of the 22 course runs.</p></div>
+          <div><h4>Students</h4><p>Search, filter, sort, page through results, and export the current view to CSV.</p></div>
+          <div><h4>Student details</h4><p>Background, enrollment and every assessment with the student's score. Add, change or remove a score.</p></div>
+          <div><h4>Add, edit, delete</h4><p>Checked forms, conflict warnings, and deletes that remove dependent results in one step.</p></div>
+          <div><h4>At-risk report</h4><p>Flags students who had missed deadlines or were scoring low by a chosen day.</p></div>
+          <div><h4>Audit log</h4><p>Who changed what, and when. Written at the same moment as each change, so it can't be skipped.</p></div>
+          <div><h4>JSON API</h4><p>Read-only endpoints for search, details, dashboard and at-risk data, with interactive docs.</p></div>
+          <div><h4>Accessible</h4><p>Works with a keyboard alone and with screen readers, in light and dark themes, and on a phone.</p></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>How it works</h3>
+        <p class="note">The website never touches the data tables directly. Every action goes through a small set of approved database routines (stored procedures), like a bank teller who can only process set forms.</p>
+        <div class="flow" role="list">
+          <div class="node" role="listitem"><span class="eyebrow">You</span><h4>Browser</h4><p>Pages and forms. Sign-in required.</p></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node" role="listitem"><span class="eyebrow">ASP.NET Core MVC</span><h4>Web app</h4><p>Checks who you are, validates input, blocks forged requests.</p></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node" role="listitem"><span class="eyebrow">12 routines</span><h4>Stored procedures</h4><p>The only door into the data. Each one does one job.</p></div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node db" role="listitem"><span class="eyebrow">SQL Server</span><h4>Database</h4><p>Students, enrollments, assessments, scores, audit log.</p></div>
+        </div>
+        <p class="import"><span aria-hidden="true">↳</span><span>Getting the data in: the raw CSV files are loaded into a holding area first, then cleaned, converted, de-duplicated and moved into the real tables in a single all-or-nothing step, with a row count check so nothing goes missing.</span></p>
+      </div>
+
+      <div class="sub">
+        <h3>Built to be safe</h3>
+        <p class="note">The records are anonymised, but the app treats them as if they were real.</p>
+        <div class="locks">
+          <div><h4>Least access</h4><p>The app's database account can only run the approved routines. It cannot read or change tables on its own.</p></div>
+          <div><h4>No SQL injection</h4><p>Typed values only, never pasted-together SQL. Sorting uses a fixed allow-list.</p></div>
+          <div><h4>Sign-in everywhere</h4><p>Every page and API needs a login. Repeated guessing is slowed to 5 tries a minute.</p></div>
+          <div><h4>No overwriting</h4><p>A version stamp on each record stops two people silently overwriting each other.</p></div>
+          <div><h4>Checked twice</h4><p>Input is validated in the app and again in the database.</p></div>
+          <div><h4>Secrets kept out</h4><p>Passwords live outside the code, and errors never show internal details to users.</p></div>
+        </div>
+        <div class="sqlrow" style="margin-top:32px">
+          <figure><button class="zoom" data-cap="Every table and its row count after the import"><img src="assets/sql-tables.webp" width="656" height="896" alt="VS Code query results listing each table with its row count" loading="lazy"></button><figcaption>Every table and how many rows it holds after the import.</figcaption></figure>
+          <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+            <figure><button class="zoom" data-cap="Pass rate by region, using a join and grouping"><img src="assets/sql-pass-rate.webp" width="936" height="848" alt="SQL query computing pass rate by region with its results" loading="lazy"></button><figcaption>Pass rate by region, computed in SQL.</figcaption></figure>
+            <figure><button class="zoom" data-cap="Acting as the app's login, reading a table directly is refused (error 229)"><img src="assets/sql-security.webp" width="936" height="116" alt="SQL error 229: SELECT permission denied for the app login" loading="lazy"></button><figcaption>Proof of least access: the app's own login is refused when it tries to read a table directly.</figcaption></figure>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Tested on every change</h3>
+        <div class="nums">
+          <div><b>38</b><span>end-to-end checks against the running app</span></div>
+          <div><b>12</b><span>stored procedures</span></div>
+          <div><b>Every push</b><span>builds, tests and imports data in CI</span></div>
+        </div>
+        <details style="margin-top:28px">
+          <summary>For developers: run it yourself</summary>
+          <div>
+            <p style="color:var(--muted);margin-bottom:12px">Needs Docker Desktop. The first start builds the database and imports the data (a minute or two).</p>
+<pre><span class="c"># download the dataset (about 45 MB) into ./data</span>
+bash scripts/get-data.sh
+cp .env.example .env            <span class="c"># then set the four values</span>
+docker compose up --build
+<span class="c"># open http://localhost:5080 and sign in</span>
+bash scripts/smoke-test.sh      <span class="c"># 38 end-to-end checks</span></pre>
+          </div>
+        </details>
+        <div class="btns">
+          <a class="btn solid" href="https://github.com/MalishaIslam/student-success-tracker" target="_blank" rel="noopener">View the code on GitHub ↗</a>
+          <a class="btn ghost" href="https://github.com/MalishaIslam/student-success-tracker/blob/main/docs/WALKTHROUGH.md" target="_blank" rel="noopener">Read the code walkthrough ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECT 2 -->
+  <section id="dashboard" class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Project 2 · Analytics</span>
+        <h2>Student Outcomes Dashboard</h2>
+        <p>The analytics companion to the web app. Where the app helps staff act on one student at a time, this Power BI report steps back and asks what patterns run through all 32,593 enrollments.</p>
+      </div>
+      <div class="chips" aria-label="Built with"><span>Power BI Desktop</span><span>Power Query</span><span>DAX</span></div>
+
+      <div class="sub">
+        <h3>The two report pages</h3>
+        <p class="note">Buttons move between the pages. Clicking any bar or segment filters the other charts on the same page.</p>
+        <div class="bi-shots">
+          <figure><button class="zoom" data-cap="Overview: headline rates and enrollments by region"><img src="assets/overview.webp" width="1452" height="922" alt="Power BI overview page with total enrollments 33K, pass rate 47.20%, withdrawal rate 31.16%, distinction rate 9.28% and a treemap of students by region" loading="lazy"></button><figcaption><strong>Overview.</strong> Headline rates, and a treemap showing how many students came from each region.</figcaption></figure>
+          <figure><button class="zoom" data-cap="Outcome Analysis: by module, education level and semester"><img src="assets/outcome-analysis.webp" width="1373" height="862" alt="Power BI outcome analysis page with outcomes by module, pass rate by education level, pass-rate trend by semester and outcome distribution" loading="lazy"></button><figcaption><strong>Outcome Analysis.</strong> Results by course, pass rate by prior education, the trend across terms, and the overall split.</figcaption></figure>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>How it was built</h3>
+        <ol class="steps">
+          <li><h4>Prepare</h4><p>Loaded the student file in Power Query and set the right data type for every column.</p></li>
+          <li><h4>Measure</h4><p>Wrote DAX measures for enrollments and the pass, withdrawal and distinction rates.</p></li>
+          <li><h4>Visualise</h4><p>Cards, donut, stacked bar, column, line and treemap charts with clear titles.</p></li>
+          <li><h4>Connect</h4><p>Added page buttons and cross-filtering so readers can explore.</p></li>
+        </ol>
+        <details style="margin-top:28px">
+          <summary>See the DAX measures</summary>
+          <div>
+<pre>Total Enrollments = COUNTROWS(studentInfo)
+Pass Rate         = DIVIDE(CALCULATE([Total Students], studentInfo[final_result] IN {"Pass","Distinction"}), [Total Students])
+Withdrawal Rate   = DIVIDE(CALCULATE([Total Students], studentInfo[final_result] = "Withdrawn"), [Total Students])
+Distinction Rate  = DIVIDE(CALCULATE([Total Students], studentInfo[final_result] = "Distinction"), [Total Students])</pre>
+            <p class="hint">Pass Rate counts both Pass and Distinction as a successful finish.</p>
+          </div>
+        </details>
+        <div class="btns">
+          <a class="btn solid" href="https://github.com/MalishaIslam/Student-outcomes-powerbi" target="_blank" rel="noopener">View the project on GitHub ↗</a>
+          <a class="btn ghost" href="https://github.com/MalishaIslam/Student-outcomes-powerbi/blob/main/Student_Outcomes_Dashboard.pdf" target="_blank" rel="noopener">Open the PDF version ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINDINGS -->
+  <section id="findings">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">What the data says</span>
+        <h2>Four findings</h2>
+        <p>The main takeaways from both projects, with the numbers behind them.</p>
+      </div>
+      <div class="findings">
+        <article class="find">
+          <span class="eyebrow">Overall</span>
+          <h3>Fewer than half of enrollments end in a pass.</h3>
+          <p>47.2% pass (including 9.3% with distinction). Almost a third withdraw before the course ends.</p>
+          <div class="hbar">
+            <span class="lab">Pass + distinction</span><span class="t"><i class="s-pass" style="width:47.2%"></i></span><b>47.2%</b>
+            <span class="lab">Withdrew</span><span class="t"><i class="s-wd" style="width:31.2%"></i></span><b>31.2%</b>
+            <span class="lab">Failed</span><span class="t"><i class="s-fail" style="width:21.6%"></i></span><b>21.6%</b>
+          </div>
+          <p class="src">All 32,593 enrollments.</p>
+        </article>
+        <article class="find">
+          <span class="eyebrow">Prior education</span>
+          <h3>Background matters a lot.</h3>
+          <p>Students who already hold a postgraduate qualification pass about twice as often as those with no formal qualifications.</p>
+          <div class="hbar">
+            <span class="lab">Postgraduate</span><span class="t"><i class="s-pass" style="width:65%"></i></span><b>~65%</b>
+            <span class="lab">No formal quals</span><span class="t"><i class="s-pass" style="width:30%"></i></span><b>~30%</b>
+          </div>
+          <p class="src">Pass rate by highest education level, Power BI report.</p>
+        </article>
+        <article class="find">
+          <span class="eyebrow">Start term</span>
+          <h3>October starts do better than February starts.</h3>
+          <p>In both 2013 and 2014, course runs starting in October (“J”) had higher pass rates than those starting in February (“B”). Course BBB shows it clearly:</p>
+          <div class="hbar">
+            <span class="lab">BBB 2013 Feb</span><span class="t"><i style="width:45.4%;background:var(--muted)"></i></span><b>45.4%</b>
+            <span class="lab">BBB 2013 Oct</span><span class="t"><i style="width:47.9%;background:var(--accent)"></i></span><b>47.9%</b>
+            <span class="lab">BBB 2014 Feb</span><span class="t"><i style="width:45.1%;background:var(--muted)"></i></span><b>45.1%</b>
+            <span class="lab">BBB 2014 Oct</span><span class="t"><i style="width:50.3%;background:var(--accent)"></i></span><b>50.3%</b>
+          </div>
+          <p class="src">Pass rates from the web app dashboard.</p>
+        </article>
+        <article class="find">
+          <span class="eyebrow">Courses</span>
+          <h3>Some courses lose far more students.</h3>
+          <p>BBB and FFF are the largest courses. CCC stands out for withdrawals: well above the 31.2% average in both of its runs.</p>
+          <div class="hbar">
+            <span class="lab">CCC 2014 Feb</span><span class="t"><i class="s-wd" style="width:46.4%"></i></span><b>46.4%</b>
+            <span class="lab">CCC 2014 Oct</span><span class="t"><i class="s-wd" style="width:43.1%"></i></span><b>43.1%</b>
+            <span class="lab">All courses</span><span class="t"><i class="s-wd" style="width:31.2%;opacity:.55"></i></span><b>31.2%</b>
+          </div>
+          <p class="src">Withdrawal rate, from the web app dashboard (898 of 1,936 and 1,077 of 2,498).</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong style="color:var(--fg)">Malisha Islam Tapotee</strong> · <a href="https://malishaislam.github.io/">Portfolio</a> · <a href="https://github.com/MalishaIslam">GitHub</a></p>
+    <p>Data: Kuzilek, J., Hlosta, M. &amp; Zdrahal, Z. (2017). Open University Learning Analytics dataset. <em>Scientific Data</em> 4, 170171. <a href="https://doi.org/10.1038/sdata.2017.171">doi.org/10.1038/sdata.2017.171</a>. Licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The dataset is anonymised.</p>
+  </div>
+</footer>
+
+<dialog id="lb" aria-label="Screenshot, full size">
+  <button type="button" id="lb-close">Close ✕</button>
+  <img id="lb-img" alt="">
+  <p id="lb-cap"></p>
+</dialog>
+
+<script>
+(function(){
+  // Videos: try local file, then GitHub; if both fail, show the "Play on GitHub" card.
+  document.querySelectorAll('.vid video').forEach(function(v){
+    var srcs=v.querySelectorAll('source'), last=srcs[srcs.length-1];
+    var fb=v.parentElement.querySelector('.fallback');
+    function fail(){ v.hidden=true; fb.hidden=false; }
+    last.addEventListener('error',fail);
+    v.addEventListener('error',fail);
+    if(v.networkState===3) fail();
+  });
+
+  // Tabs
+  var tabs=[].slice.call(document.querySelectorAll('[role="tab"]'));
+  function pick(t){
+    tabs.forEach(function(x){
+      var on=x===t; x.setAttribute('aria-selected',on); x.tabIndex=on?0:-1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden=!on;
+    });
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){pick(t)});
+    t.addEventListener('keydown',function(e){
+      var d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0;
+      if(d){var n=tabs[(i+d+tabs.length)%tabs.length];pick(n);n.focus();e.preventDefault();}
+    });
+  });
+
+  // Lightbox
+  var lb=document.getElementById('lb'), im=document.getElementById('lb-img'), cap=document.getElementById('lb-cap');
+  document.querySelectorAll('.zoom').forEach(function(b){
+    b.addEventListener('click',function(){
+      var i=b.querySelector('img'); im.src=i.src; im.alt=i.alt; cap.textContent=b.dataset.cap||'';
+      if(lb.showModal) lb.showModal();
+    });
+  });
+  document.getElementById('lb-close').addEventListener('click',function(){lb.close()});
+  lb.addEventListener('click',function(e){ if(e.target===lb) lb.close(); });
+})();
+</script>
+
+</body>
+</html>
